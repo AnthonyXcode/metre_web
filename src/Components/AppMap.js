@@ -15,13 +15,26 @@ const AppMap = withScriptjs(
       defaultCenter={{ lat: 22.396428, lng: 114.109497 }}
     >
       {props.allLocations.map(location => {
-        const { longitude, latitude, locationName } = location
+        const { longitude, latitude, locationName, metreArr } = location
+        const availableMetres = metreArr.filter((metre) => {
+          const { available } = metre
+          return available
+        })
+        console.log(availableMetres, metreArr)
+        let image = Images.circle_green
+        if (availableMetres.length < metreArr.length / 3) {
+          image = Images.circle_green
+        } else if (availableMetres.length > metreArr.length / 3 && availableMetres.length < metreArr.length / 3 * 2) {
+          image = Images.circle_blue
+        } else {
+          image = Images.circle_red
+        }
         return (
           <Marker
             key={locationName}
             position={{ lat: latitude, lng: longitude }}
             onClick={() => props.onMarkerClick(location)}
-            defaultIcon={Images.circle_red}
+            defaultIcon={image}
           />
         )
       })}

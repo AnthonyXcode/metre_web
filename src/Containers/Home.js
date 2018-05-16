@@ -5,6 +5,7 @@ import firebase from '../Helpers/FirebaseHelper'
 import * as R from 'ramda'
 import { Link } from 'react-router-dom'
 import AppMap from '../Components/AppMap'
+import {Images} from '../Themes'
 
 class App extends Component {
   state = {
@@ -21,7 +22,7 @@ class App extends Component {
         const location = snap.val()[locationName]
         let longitude = 0
         let latitude = 0
-        let metreArr = []
+        let metreArr = this.getMetreArr()
         for (var key in location) {
           const metre = location[key]
           if (key === 'longitude') {
@@ -29,11 +30,6 @@ class App extends Component {
           }
           if (key === 'latitude') {
             latitude = metre
-          }
-          if (key === 'metreId') {
-            for (var metreId in metre) {
-              metreArr.push(metre[metreId])
-            }
           }
         }
         const showingLocationName = R.pathOr(
@@ -58,18 +54,31 @@ class App extends Component {
     console.log('click detail')
   }
 
+  getMetreArr = () => {
+    let numberOfMetre = 0
+    while(numberOfMetre < 10) {
+      numberOfMetre = Math.round(Math.random() * 20)
+    }
+    const metres = R.range(1, numberOfMetre + 1)
+    const metreArr = metres.map((metre) => {
+      const available = Math.random() * 10 > 5 ? true : false
+      const endTime = available ? '/' : Math.round(Math.random() * 120) + ' mins later'
+      const number = metre
+      return {available, endTime, number}
+    })
+    return metreArr
+  }
+
   Status = showingLocation => {
     const locationName = R.pathOr('', ['locationName'], showingLocation)
+    if (!locationName) return <div/>
     const metreArr = R.pathOr([], ['metreArr'], showingLocation)
-    if (metreArr.length === 0) return <div />
     const metreDetail = metreArr.map(metre => {
-      const isAvailable = R.pathOr(true, ['available'], metre)
-        ? 'available'
-        : 'unavailable'
+      const isAvailable = R.pathOr(true, ['available'], metre) ? <img style={{height: 15, width: 15}} src={Images.circle_green}/> : <img style={{height: 15, width: 15}} src={Images.circle_red}/>
       const endTime = R.pathOr('', ['endTime'], metre)
       const number = R.pathOr('0', ['number'], metre)
       return (
-        <div style={{ display: 'flex', width: 350 }}>
+        <div style={{ display: 'flex', width: 350 }} key={locationName + number}>
           <div style={{ width: 60 }}>{number}</div>
           <div style={{ width: 60 }}>{isAvailable}</div>
           <div style={{ width: 230 }}>{endTime}</div>
